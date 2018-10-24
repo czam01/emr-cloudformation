@@ -1,0 +1,8 @@
+version: 0.2
+phases:
+  build:
+    commands:
+      - aws s3 cp --recursive --region us-east-1 $(pwd) s3://prd-emr-deploy
+artifacts:
+  files:
+    - '**/*'
