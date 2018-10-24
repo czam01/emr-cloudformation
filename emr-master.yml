@@ -1,23 +1,5 @@
 AWSTemplateFormatVersion: '2010-09-09'
 Description: Cloudformation Stack to deploy BCI BigData Enviroment
-Parameters:
-    awsRegion:
-        Description: awsRegion
-        Default: us-east-1
-        Type: String
-    EnvironmentName:
-        Description: "A prefix for the resource names."
-        Type: String
-        Default: PRODUCTION-BigData
-Mappings:
-    EnvironmentMap:
-        PRODUCTION-BigData-Emr:
-            EnvironmentName: PRODUCTION-BigData
-            VpcAddress: 172.31.0.0/16
-            PublicSubNetAAddress: 172.31.0.0/20
-            PublicSubNetBAddress: 172.31.16.0/20
-            PublicSubNetCAddress: 172.31.32.0/20
-
 Resources:
     EMRClusterV5:
         Type: AWS::EMR::Cluster
@@ -34,8 +16,7 @@ Resources:
                     Market: "ON_DEMAND"
                     Name: "prd-Emr-core-BigData-Dev"
                 Ec2SubnetId:
-                    Fn::ImportValue:
-                        !Join ['-', ['PublicSubNetAId',!FindInMap [ EnvironmentMap, !Ref "AWS::StackName", EnvironmentName ]]]
+                    subnet-030c9359
                 Ec2KeyName: prd-emr-deploy
                 EmrManagedMasterSecurityGroup:
                     sg-00e04cdca1d595f6f
