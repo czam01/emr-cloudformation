@@ -7,12 +7,12 @@ Resources:
             Instances:
                 MasterInstanceGroup:
                     InstanceCount: 1
-                    InstanceType: "m3.large"
+                    InstanceType: "m4.large"
                     Market: "ON_DEMAND"
                     Name: "prd-Emr-master-BigData"
                 CoreInstanceGroup:
                     InstanceCount: 1
-                    InstanceType: "m3.large"
+                    InstanceType: "m4.large"
                     Market: "ON_DEMAND"
                     Name: "prd-Emr-core-BigData-Dev"
                 Ec2SubnetId:
