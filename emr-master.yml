@@ -1,5 +1,5 @@
 AWSTemplateFormatVersion: '2010-09-09'
-Description: Cloudformation Stack to deploy BCI BigData Enviroment
+Description: Cloudformation Stack to deploy BigData Enviroment
 Parameters:
     awsRegion:
         Description: awsRegion
@@ -49,202 +49,10 @@ Resources:
                 Args:
                     - "spark-submit"
                     - "--py-files"
-                    - "/tmp/cashouts/schema.py"
-                    - "/tmp/cashouts/ingest_cashouts.py"
-                    - "prd"
-                    - "mach-big-data-edl"
+                    - "/tmp/file.py"
                 Jar: "command-runner.jar"
             Name: "IngestCashouts"
             JobFlowId: !Ref EMRClusterV5
-    IngestPaymentsStep:
-        Type: "AWS::EMR::Step"
-        DependsOn: IngestCashoutsStep
-        Properties:
-            ActionOnFailure: "CONTINUE"
-            HadoopJarStep:
-                Args:
-                    - "spark-submit"
-                    - "/tmp/payments/ingest_payments.py"
-                    - "prd"
-                    - "mach-big-data-edl"
-                Jar: "command-runner.jar"
-            Name: "IngestPayments"
-            JobFlowId: !Ref EMRClusterV5
-    IngestMachCardsStep:
-        Type: "AWS::EMR::Step"
-        DependsOn: IngestTcomStep
-        Properties:
-            ActionOnFailure: "CONTINUE"
-            HadoopJarStep:
-                Args:
-                    - "spark-submit"
-                    - "--py-files"
-                    - "/tmp/mach_cards/schema.py"
-                    - "/tmp/mach_cards/ingest_card_receptions.py"
-                    - "prd"
-                    - "mach-big-data-edl"
-                Jar: "command-runner.jar"
-            Name: "IngestMachCards"
-            JobFlowId: !Ref EMRClusterV5
-    IngestReferralsStep:
-        Type: "AWS::EMR::Step"
-        DependsOn: IngestCashInStep
-        Properties:
-            ActionOnFailure: "CONTINUE"
-            HadoopJarStep:
-                Args:
-                    - "spark-submit"
-                    - "--py-files"
-                    - "/tmp/mach_cards/schema.py"
-                    - "--executor-memory"
-                    - "10G"
-                    - "/tmp/referrals/ingest_referrals.py"
-                    - "prd"
-                    - "mach-big-data-edl"
-                Jar: "command-runner.jar"
-            Name: "IngestReferrals"
-            JobFlowId: !Ref EMRClusterV5
-    IngestCashInStep:
-        Type: "AWS::EMR::Step"
-        DependsOn: IngestPaymentsStep
-        Properties:
-            ActionOnFailure: "CONTINUE"
-            HadoopJarStep:
-                Args:
-                    - "spark-submit"
-                    - "--py-files"
-                    - "/tmp/cashins/schema.py"
-                    - "/tmp/cashins/ingest_cashins.py"
-                    - "prd"
-                    - "mach-big-data-edl"
-                Jar: "command-runner.jar"
-            Name: "IngestCashIn"
-            JobFlowId: !Ref EMRClusterV5
-    IngestAccountsStep:
-        Type: "AWS::EMR::Step"
-        DependsOn:  IngestIdentitiestep
-        Properties:
-            ActionOnFailure: "CONTINUE"
-            HadoopJarStep:
-                Args:
-                    - "spark-submit"
-                    - "/tmp/ingest_accounts.py"
-                    - "prd"
-                    - "mach-big-data-edl"
-                Jar: "command-runner.jar"
-            Name: "IngestAccounts"
-            JobFlowId: !Ref EMRClusterV5
-    IngestProfilesStep:
-        Type: "AWS::EMR::Step"
-        DependsOn: IngestAccountsStep
-        Properties:
-            ActionOnFailure: "CONTINUE"
-            HadoopJarStep:
-                Args:
-                    - "spark-submit"
-                    - "/tmp/ingest_profiles.py"
-                    - "prd"
-                    - "mach-big-data-edl"
-                Jar: "command-runner.jar"
-            Name: "IngestProfiles"
-            JobFlowId: !Ref EMRClusterV5
-    IngestContactsStep:
-        Type: "AWS::EMR::Step"
-        DependsOn: IngestProfilesStep
-        Properties:
-            ActionOnFailure: "CONTINUE"
-            HadoopJarStep:
-                Args:
-                    - "spark-submit"
-                    - "/tmp/ingest_contacts.py"
-                    - "prd"
-                    - "mach-big-data-edl"
-                Jar: "command-runner.jar"
-            Name: "IngestContacts"
-            JobFlowId: !Ref EMRClusterV5
-    IngestTcomStep:
-            Type: "AWS::EMR::Step"
-            DependsOn: IngestReferralsStep
-            Properties:
-                ActionOnFailure: "CONTINUE"
-                HadoopJarStep:
-                    Args:
-                        - "spark-submit"
-                        - "/tmp/ingest_tcom.py"
-                        - "prd"
-                        - "mach-big-data-edl"
-                        - "MPJ38260.FINT0003.0016.D20170531"
-                    Jar: "command-runner.jar"
-                Name: "IngestTcomStep"
-                JobFlowId: !Ref EMRClusterV5
-    IngestPhonestep:
-            Type: "AWS::EMR::Step"
-            DependsOn: CloudWatchToS3step
-            Properties:
-                ActionOnFailure: "CONTINUE"
-                HadoopJarStep:
-                    Args:
-                        - "spark-submit"
-                        - "/tmp/ingest_phones.py"
-                        - "prd"
-                        - "mach-big-data-edl"
-                    Jar: "command-runner.jar"
-                Name: "IngestPhones"
-                JobFlowId: !Ref EMRClusterV5
-    IngestIdentitiestep:
-            Type: "AWS::EMR::Step"
-            DependsOn: IngestPhonestep
-            Properties:
-                ActionOnFailure: "CONTINUE"
-                HadoopJarStep:
-                    Args:
-                        - "spark-submit"
-                        - "/tmp/ingest_identities.py"
-                        - "prd"
-                        - "mach-big-data-edl"
-                    Jar: "command-runner.jar"
-                Name: "IngestIdentities"
-                JobFlowId: !Ref EMRClusterV5
-    CreateUserDetailstep:
-            Type: "AWS::EMR::Step"
-            DependsOn: IngestMachCardsStep
-            Properties:
-                ActionOnFailure: "CONTINUE"
-                HadoopJarStep:
-                    Args:
-                        - "spark-submit"
-                        - "/tmp/data_warehouse/create_user_detail.py"
-                        - "prd"
-                    Jar: "command-runner.jar"
-                Name: "CreateUserDetail"
-                JobFlowId: !Ref EMRClusterV5
-    CreateDateDimensionstep:
-            Type: "AWS::EMR::Step"
-            DependsOn: CreateUserDetailstep
-            Properties:
-                ActionOnFailure: "CONTINUE"
-                HadoopJarStep:
-                    Args:
-                        - "spark-submit"
-                        - "/tmp/data_warehouse/create_date_dimension.py"
-                        - "prd"
-                        - "2017"
-                        - "3"
-                    Jar: "command-runner.jar"
-                Name: "CreateDateDimension"
-                JobFlowId: !Ref EMRClusterV5
-    CloudWatchToS3step:
-            Type: "AWS::EMR::Step"
-            DependsOn: EMRClusterV5
-            Properties:
-                ActionOnFailure: "CONTINUE"
-                HadoopJarStep:
-                    Args:
-                        - "s3://mach-big-data-emr-batch/deploy/cloudwatch_to_s3.sh"
-                        - "prd"
-                    Jar: "s3://us-east-1.elasticmapreduce/libs/script-runner/script-runner.jar"
-                Name: "CloudWatchToS3"
-                JobFlowId: !Ref EMRClusterV5
     EMRClusterV5:
         Type: AWS::EMR::Cluster
         Properties:
@@ -262,7 +70,7 @@ Resources:
                 Ec2SubnetId:
                     Fn::ImportValue:
                         !Join ['-', ['PublicSubNetAId',!FindInMap [ EnvironmentMap, !Ref "AWS::StackName", EnvironmentName ]]]
-                Ec2KeyName: Key-PRODUCTION-BigData
+                Ec2KeyName: Key-BigData
                 EmrManagedMasterSecurityGroup:
                     Fn::ImportValue:
                         !Join ['-', ['PortsForEmrMasterNode',!FindInMap [ EnvironmentMap, !Ref "AWS::StackName", EnvironmentName ]]]
@@ -273,8 +81,8 @@ Resources:
                 -
                     Name: "BootstrapEMR"
                     ScriptBootstrapAction:
-                        Path: "s3://mach-big-data-emr-batch/deploy/boot.sh"
-            LogUri: "s3://mach-big-data-infra-logs/emr/batch/"
+                        Path: "s3://mybucket/deploy/boot.sh"
+            LogUri: "s3://mybucket/emr/batch/"
             Configurations:
             - Classification: hadoop-env
               Configurations:
